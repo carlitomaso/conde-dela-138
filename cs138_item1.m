@@ -1,76 +1,60 @@
-%given
-matrix = [1 -2 -1 3; 2 -4 1 0; 1 -2 2 -3];
-solution = [1; 5; 4];
+clc, clearvars, close all
 
-sample = [10 3 1; 3 10 2; 1 2 10];
-sample_source = [19;29;35];
-
-% gets the RREF of a matrix
-function aug = naiveGaussJordanCalculator(matr, soln)
-    aug = [matr soln]; % augmented matrix
-    N = length(soln); % size of the matrix
-    disp(aug)
-
-    for col=1:N %for columns
-        aug(col,:) = aug(col,:)/aug(col,col);
-        for row=1:N %for rows
-            if col ~= row
-                multiple = aug(row, col);
-                aug(row,:) = aug(row, :) - multiple*aug(col,:);
-                disp(multiple)
+function A = get_ref(A)
+   [m, n] = size(A);
+    row = 1;          
+    for col = 1:n
+        [~, pivotRow] = max(abs(A(row:m, col)));
+        pivotRow = pivotRow + row - 1;
+        if A(pivotRow, col) ~= 0
+            A([row, pivotRow], :) = A([pivotRow, row], :);
+            A(row, :) = A(row, :) / A(row, col);
+            for i = row + 1:m
+                A(i, :) = A(i, :) - A(i, col) * A(row, :);
             end
-            disp(aug)
+            row = row + 1;
         end
     end
 end
 
-
-% gets the RREF of a matrix using gaussian elim. with pivoting
-function aug = pivotedGaussJordanCalculator(matr, soln)
-    aug = [matr soln]; % augmented matrix
-    N = size(matr, 1); % size of the matrix
-    disp(aug)
-
-    for col=1:N %for columns
-
-        % obtaining the index of the largest magnitude
-        [~,k] = max(abs(aug(col:end, col)));
-        k = (col-1)+k(1);
-
-        % ERO 1
-        aug([col, k],col:end) = aug([k, col],col:end);
-
-        % ERO 2
-        aug(col, col:end) = aug(col,col:end)/aug(col,col);
-           
-        for row=col+1:N %for rows
-            if abs(aug(row, col)) < 1E-10
-                aug(col,row) = 0;
-                continue;
-            end
-            
-            % ERO 3
-            aug(row, col:end)=aug(row, col:end) - aug(row, col) * aug(col, col:end);
+function A = get_rref(A)
+    [m, n] = size(A);
+    i = n;
+    j = m;
+    r = m - 1;
+    while r > 0
+        if A(r + 1,:) == zeros(1,n)
+            r = r -1;
+            continue
         end
-    end
-    % REF [A|b]
-    disp(aug);
-
-    % perform backward sub
-    x = aug(:, end);
-    for i=N-1:-1:1
-        x(i) = x(i) - aug(i, i+1:end-1) * x(i+1:end);
+        if A(r+1,i) ~= 0
+            i = i -1;
+            continue
+        end
+        for row = 1:r
+            A(row, i+2:n) = A(row, i+2:n) - A(row, i+1)*A(r + 1, i+2:n);
+            A(row, i+1) = 0;
+            %disp(A)
+        end
+        r = r-1;
+        
     end
 end
 
-disp(matrix);
-disp(solution);
-disp([matrix solution]);
-%x = gaussJordanCalculator(sample, sample_source);
-%disp(x);
 
-% x = naiveGaussJordanCalculator(matrix, solution);
-x = pivotedGaussJordanCalculator(matrix, solution);
-disp(x)
+A = [
+    2  -4   6   8  -10  12;
+    1   0.5 -3   2   3.5 -4.5;
+    3   6   9  -12  15   18;
+    5  -10  15  20 -25   30;
+    4   8  -12  16  20  -24
+];
+b = [1 5 4]';
+disp("builtin")
+disp(rref(A))
 
+A = get_ref(A);
+A = get_rref(A);
 
+disp("homemade")
+disp(A);
