@@ -41,6 +41,57 @@ function A = get_rref(A)
     end
 end
 
+function basis = rrefToBasis(rref)
+
+    ps = rref(1:end, end); % matr that contains particular soln 
+    coe = rref(1:end, 1:end-1); % contains the coefficients of the rref 
+    % disp(ps);
+    % disp(coe);
+    [m,n] = size(coe);
+    term = ps;
+
+    % determines whether is a leading row (1 if leading, 0 if not)
+    is_leading = ones(n, 1); 
+
+    % looks at each col for nonzero and non-one numbers
+    for j=1:n %travels each col
+        for i=1:m %traverses each elem in the col
+
+            % if we found an element greater than 1 in each row, put it
+            % into new term matrix (term matrix shall contain non leading rows)
+            % save the indexes of leading columns
+            %disp(coe(i,j));
+            if (coe(i, j)) > 1 || (coe(i, j)) < 0
+                term = [term -1*coe(1:end, j)];
+                % disp(term);
+                is_leading(j, 1) = 0;
+                break;
+            end
+        end
+    end
+    
+    % creates the basis matrix using the initial basis column
+    [~, n_basis] = size(term);
+    basis = zeros(n, n_basis);
+    % disp(is_leading);
+    tdx = 1; % index for the term matrix
+    ndx = 2; % index for the non leading term, skip part soln matr, this starting at 2
+    for row=1:n
+        % is a leading row
+        % disp(is_leading(row, 1));
+        if is_leading(row, 1) == 1
+            % disp(term(tdx, 1:end));
+            basis(row, 1:end) = [term(tdx, 1:end)];
+            tdx = tdx + 1;
+            continue;
+        end
+        % if non leading term
+        basis(row, ndx) = 1;
+        ndx = ndx + 1;
+
+    end
+    disp(basis);
+end
 
 A = [
     2  -4   6   8  -10  12;
