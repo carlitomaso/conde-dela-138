@@ -77,7 +77,7 @@ function basis = rrefToBasis(rref)
     tdx = 1; % index for the term matrix
     ndx = 2; % index for the non leading term, skip part soln matr, this starting at 2
     for row=1:n
-        % is a leading row
+        % is a column with a leading entry
         % disp(is_leading(row, 1));
         if is_leading(row, 1) == 1
             % disp(term(tdx, 1:end));
@@ -85,7 +85,7 @@ function basis = rrefToBasis(rref)
             tdx = tdx + 1;
             continue;
         end
-        % if non leading term
+        % if non-leading
         basis(row, ndx) = 1;
         ndx = ndx + 1;
 
